@@ -63,19 +63,19 @@ void appendOutput(char c)
 	output += ' ';
 }
 
-bool isCorrect(string wyr)
+bool isCorrect(string equation)
 {
 	int operatorCount = 0;
 	int openingBrackets = 0;
 	int closingBrackets = 0;
-	for(int i=0; i<wyr.length(); ++i)
+	for(int i=0; i<equation.length(); ++i)
 	{
-		while(wyr[i] == ' ')
+		while(equation[i] == ' ')
 			i++;
-		if(operators.isOperator(wyr[i]))
+		if(operators.isOperator(equation[i]))
 		{
 			operatorCount++;
-			if(i+1<wyr.length() && wyr[i+1] == ')')
+			if(i+1<equation.length() && equation[i+1] == ')')
 			{
 				cout << "Error operatora przed nawiasem!" << endl;
 				return false;
@@ -88,9 +88,9 @@ bool isCorrect(string wyr)
 		}
 		else
 		{
-			if(wyr[i] == '(')
+			if(equation[i] == '(')
 				openingBrackets++;
-			else if(wyr[i] == ')')
+			else if(equation[i] == ')')
 				closingBrackets++;
 			operatorCount = 0;
 		}
