@@ -1,8 +1,5 @@
-#include <string>
-#include <iostream>
 #include <map>
-
-using namespace std;
+#include "Logic.h"
 
 std::map<string, double> constraints;
 
@@ -15,6 +12,15 @@ bool isFormulaCorrect(string formula)
 	{
 		while(formula[i] == ' ')
 			i++;
+
+		if(formula[i] == '#')
+		{
+			if(i+1 >= formula.length() || !isLetter(formula[i+1]))
+			{
+				cout << "Error brak identyfikatora stalej!" << endl;
+				return false;
+			}
+		}
 		
 		if(formula[i] == '{')
 		{
@@ -43,5 +49,10 @@ bool isFormulaCorrect(string formula)
 
 void parseFormula(string formula)
 {
-
+	for(int i=0; i<formula.length(); ++i)
+	{
+		while(formula[i] == ' ')
+			i++;
+		
+	}
 }

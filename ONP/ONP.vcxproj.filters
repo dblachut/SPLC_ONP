@@ -26,5 +26,8 @@
     <ClInclude Include="ONP_translator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Logic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
