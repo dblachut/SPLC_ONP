@@ -4,11 +4,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include<map>
+#include <map>
 
 using namespace std;
 
-#define DEC_SEPARATOR ','
+#define DEC_SEPARATOR '.'
 
 class Constants
 {
@@ -22,7 +22,7 @@ public:
 			return true;
 	}
 
-	// constantExists should called before to check 
+	// constantExists should be called before to check 
 	// if a constant of given name is on the list
 	static double constantValue(string name){
 		return inst.constants[name];
@@ -31,11 +31,13 @@ public:
 private:
 	std::map <string, double> constants;
 
+	// Constant names can only be formed with letters and digits
 	Constants()					// TODO: add more constants			
 	{
 		constants["pi"] = 3.14159265359;
 		constants["three"] = 3.00;
-		constants["lucky_number"] = 7;
+		constants["luckynumber"] = 7;
+		constants["p1"] = 1.1111111;
 	}
 };
 
@@ -119,4 +121,29 @@ string getNumber(string pattern, int& index)
 
 	return number;
 }  
+
+// substitutes constant names "#name" in string formula with their respective values
+// described in the Constants singleton class
+string insertConstantValues(string formula){
+	string retval = "";
+	for(int i = 0; i < formula.length();){
+		if(formula[i] == '#')
+		{						
+			i++; // go to the next character after '#'
+			string constName = "";
+			while((i < formula.length()) && (isLetter(formula[i]) || isDigit(formula[i])))
+				constName += formula[i++]; // incrementing i and adding one character to constNames until non-alphanumeric character found
+			if( !Constants::inst.constantExists(constName) ){
+				cout << "Error: constant " << constName << " is invalid!" << endl;
+				break;
+			}else{
+				retval.append(std::to_string(Constants::inst.constantValue(constName)));
+			}
+		}else{ // not #
+			retval += formula[i++]; // incrementing i
+		}
+	}
+	return retval;
+}
+
 #endif // !_LOGIC_H_
