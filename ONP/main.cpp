@@ -17,8 +17,8 @@ int main ()
 			cout << "Formula correct\n";
 		}
 
-		// TODO: get user parameters values here
-
+		//get user parameters values here
+		line = getUserValues(line);
 
 		//substitute constant names with values
 		line = insertConstantValues(line);
@@ -35,5 +35,6 @@ int main ()
 		
 		translateToONP(line);
 	}
+
 	return 0;
 }

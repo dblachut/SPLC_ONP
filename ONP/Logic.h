@@ -146,4 +146,40 @@ string insertConstantValues(string formula){
 	return retval;
 }
 
+// asks user for each parameter of the formula and returns a string
+// where parameters "{$parameter_name}" are substituted with values given by the user
+// USAGE NOTE: it should be checked beforehand whether the formula is correct or not
+string getUserValues(string formula){ // TODO: array user parameters
+	string retval = "";
+	for(int i = 0; i < formula.length();){
+		if(formula[i] == '{')
+		{
+			if(i+1 >= formula.length() || formula[i+1] != '$')
+			{
+				cout << "Error brak znaku $ w argumencie!" << endl;
+				return false;
+			}
+			i += 2; // go to the first character of parameter name
+			string paramName = "";
+			while((i < formula.length()) && (isLetter(formula[i]) || isDigit(formula[i])))
+				paramName += formula[i++];
+			if(formula[i] == ':'){
+				// TODO: array argument. let's do it later
+			}
+			// prompt user for input
+			cout << "Enter the value for " << paramName << ": ";
+			double x;
+			cin >> x;
+			cin.sync(); // reset stream buffer (remove \n used to confirm number input) TODO: is there a smarter way to do it?
+			retval.append(std::to_string(x));
+			
+			while(formula[i++]!='}'); // get to the next character after the closing bracket
+
+		}else{
+			retval += formula[i++];
+		}
+	}
+	return retval;
+}
+
 #endif // !_LOGIC_H_
