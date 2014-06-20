@@ -157,7 +157,7 @@ string getUserValues(string formula){ // TODO: array user parameters
 			if(i+1 >= formula.length() || formula[i+1] != '$')
 			{
 				cout << "Error brak znaku $ w argumencie!" << endl;
-				return false;
+				return "";
 			}
 			i += 2; // go to the first character of parameter name
 			string paramName = "";
