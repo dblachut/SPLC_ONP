@@ -60,6 +60,13 @@ void translateToONP(string equation)
 	output = "";
 	vector<char> stack;
 
+	if(equation[0] == '-')
+	{		
+		string tmp = "0";
+		tmp.append(equation);
+		equation = tmp;
+	}
+
 	for(int i=0; i<equation.length(); ++i)
 		{
 			while(equation[i] == ' ')
