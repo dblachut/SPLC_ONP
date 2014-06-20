@@ -1,15 +1,50 @@
+#ifndef _LOGIC_H_
+#define _LOGIC_H_
+
 #include <iostream>
 #include <string>
 #include <vector>
+#include<map>
 
 using namespace std;
 
 #define DEC_SEPARATOR ','
 
+class Constants
+{
+public:
+	static Constants inst;		// instance
+
+	static bool constantExists(string name){
+		if(inst.constants.find(name) == inst.constants.end())
+			return false;
+		else
+			return true;
+	}
+
+	// constantExists should called before to check 
+	// if a constant of given name is on the list
+	static double constantValue(string name){
+		return inst.constants[name];
+	}
+
+private:
+	std::map <string, double> constants;
+
+	Constants()					// TODO: add more constants			
+	{
+		constants["pi"] = 3.14159265359;
+		constants["three"] = 3.00;
+		constants["lucky_number"] = 7;
+	}
+};
+
+Constants Constants::inst = Constants();
+
 class Operators
 {
 public:
-	
+
 	static Operators inst;
 
 	static bool isOperator(char c)
@@ -83,4 +118,5 @@ string getNumber(string pattern, int& index)
 	}
 
 	return number;
-}
+}  
+#endif // !_LOGIC_H_

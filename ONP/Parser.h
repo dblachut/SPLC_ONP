@@ -20,6 +20,15 @@ bool isFormulaCorrect(string formula)
 				cout << "Error brak identyfikatora stalej!" << endl;
 				return false;
 			}
+
+			int j = i+1;
+			string constName = "";
+			while((j < formula.length()) && (isLetter(formula[j]) || isDigit(formula[j])))
+				constName += formula[j++];
+			if( !Constants::inst.constantExists(constName) ){
+				cout << "Error stala " << constName << " nie istnieje!" << endl;
+				return false;
+			}
 		}
 		
 		if(formula[i] == '{')
