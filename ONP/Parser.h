@@ -170,7 +170,7 @@ string insertFunctionValues(string formula)
 	}
 	return retval;
 };  
-#endif // !_PARSER_H_
+
 
 string parseFormula(string formula)
 {
@@ -189,3 +189,5 @@ string parseFormula(string formula)
 	}
 	return formula;
 }
+
+#endif // !_PARSER_H_
