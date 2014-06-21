@@ -44,9 +44,9 @@ class Functions
 public:
 	static Functions inst;		// instance
 
-	static bool functionExists(string name, int argc)
+	static bool functionExists(string name)
 	{
-		if(inst.functions.find(make_pair(name,argc))  == inst.functions.end())
+		if(inst.functions.find(name)  == inst.functions.end())
 		{
 			return false;
 		}
@@ -58,19 +58,31 @@ public:
 
 	static double functionValue(string name, vector<double> arguments)
 	{
-		return inst.functions[make_pair(name,arguments.size())](arguments);
+		double (*func)(vector<double>) = inst.functions[name].first;
+		int argc = inst.functions[name].second;
+		if(arguments.size() != argc)
+			cout << "Error, not enough arguments for function call: " << name << endl;
+		return func(arguments);
+	}
+
+	static vector<string> getNames()
+	{
+		vector<string> ret;
+		for(map<string,pair<double (*)(vector<double>),int>>::iterator iter = inst.functions.begin(); iter != inst.functions.end(); ++iter)		
+			ret.push_back(iter->first);
+		return ret;
 	}
 
 private:
-	map<pair<string,int>,double (*)(vector<double>)> functions;
+	map<string,pair<double (*)(vector<double>),int>> functions;
 
 	Functions()
 	{	// TODO: more
-		functions[make_pair("sin",1)] = sinFunction;
-		functions[make_pair("cos",1)] = cosFunction;
-		functions[make_pair("sqrt",1)] = sqrtFunction;
-		functions[make_pair("pow",2)] = powFunction;
-		functions[make_pair("rand",0)] = randFunction;
+		functions["sin"] = make_pair(sinFunction,1);
+		functions["cos"] = make_pair(cosFunction,1);
+		functions["sqrt"] = make_pair(sqrtFunction,1);
+		functions["pow"] = make_pair(powFunction,2);
+		functions["rand"] = make_pair(randFunction,0);
 	}
 };  
 

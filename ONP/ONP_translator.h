@@ -1,4 +1,7 @@
+#ifndef _TRANSLATOR_H_
+#define _TRANSLATOR_H_
 #include "Logic.h"
+#include "Functions.h"
 
 static string output = "";
 
@@ -58,7 +61,7 @@ void translateToONP(string equation)
 {
 	string number = "";
 	output = "";
-	vector<char> stack;
+	vector<string> stack;
 
 	if(equation[0] == '-')
 	{		
@@ -68,38 +71,40 @@ void translateToONP(string equation)
 	}
 
 	for(int i=0; i<equation.length(); ++i)
+	{
+		while(equation[i] == ' ')
+			i++;
+
+		number = getNumber(equation, i);
+		appendOutput(number);
+
+		while(equation[i] == ' ')
+			i++;
+
+		if(i < equation.length())
+			switch(equation[i])
 		{
-			while(equation[i] == ' ')
-				i++;
-
-			number = getNumber(equation, i);
-			appendOutput(number);
-
-			while(equation[i] == ' ')
-				i++;
-
-			if(i < equation.length())
-				switch(equation[i])
+			case '=':
+				while( !stack.empty() )
+					appendOutput(stack.back()), stack.pop_back();
+				output += equation[i];
+				if(i != equation.length()-1)
+					cout << "Znak = nie na koncu równania";
+				break;
+			case '(':
+				stack.push_back(string(1,equation[i]));
+				break;
+			case ')':
+				while(!stack.empty() && stack.back() != "(")
+					appendOutput(stack.back()), stack.pop_back();
+				stack.pop_back();
+				break;
+			case ',': //TODO: coma or semicolon?
+				// do nothing
+				break;
+			default:
+				if( Operators::isOperator(equation[i]) )
 				{
-				case '=':
-					while( !stack.empty() )
-						appendOutput(stack.back()), stack.pop_back();
-					output += equation[i];
-					if(i != equation.length()-1)
-						cout << "Znak = nie na koncu equationazenia";
-					break;
-				case '(':
-					stack.push_back(equation[i]);
-					break;
-				case ')':
-					while(!stack.empty() && stack.back() != '(')
-						appendOutput(stack.back()), stack.pop_back();
-					stack.pop_back();
-					break;
-				default:
-					if( ! Operators::isOperator(equation[i]) )
-						cout << "Error, nieznany znak: " << equation[i];
-
 					if(equation[i] == '-' && i != 0)		//sprawdzamy wystepowanie (-a)
 					{
 						int tmp = i-1;
@@ -111,17 +116,39 @@ void translateToONP(string equation)
 						}
 					}
 
-					while( !stack.empty() && stack.back() != '(' && !Operators::isPrioritized(equation[i], stack.back()) )
+					while( !stack.empty() && stack.back() != "(" && !Operators::isPrioritized(equation[i], stack.back()) )
 						appendOutput(stack.back()), stack.pop_back();
-				
-					stack.push_back(equation[i]);
+
+					stack.push_back(string(1,equation[i]));
 					break;
+				}else{ // either a function or an error
+					if(!isLetter(equation[i])) // error
+					{
+						cout << "Error, nieznany znak: " << equation[i];
+						return;
+					}
+					// Get function name
+					string fName = "";
+					while(equation[i] != '(')					
+						fName+=equation[i++];
+					i--;
+
+					// recognize the function and put it where it belongs
+					if(!Operators::inst.isOperator(fName))//Functions::inst.functionExists(fName))
+					{
+						cout << "Error, function " << fName << " does not exist\n";
+						return;
+					}
+
+					stack.push_back(fName);
 				}
-
 		}
-		while( !stack.empty() )
-			appendOutput(stack.back()), stack.pop_back();
 
-		cout << "Przed: " << equation << endl;
-		cout << "Po: " << output << endl;
-}
+	}
+	while( !stack.empty() )
+		appendOutput(stack.back()), stack.pop_back();
+
+	cout << "Przed: " << equation << endl;
+	cout << "Po: " << output << endl;
+}  
+#endif // !_TRANSLATOR_H_

@@ -122,9 +122,8 @@ string getUserValues(string formula)
 	return retval;
 }
 
-// TODO: recursive function calls sin(sin(#x)) and sin(1-2) or sin(#pi/2)
 // calculates function values and substitutes function calls with the values
-string insertFunctionValues(string formula)
+/*string insertFunctionValues(string formula)
 {
 	string retval = "";
 	for(int i = 0; i < formula.length();)
@@ -169,17 +168,13 @@ string insertFunctionValues(string formula)
 		}
 	}
 	return retval;
-};  
+};  */
 
 
 string parseFormula(string formula)
 {
 	//substitute constant names with values
 	formula = insertConstantValues(formula);
-
-	// substitute functions with their calculated values NOTE: user arguments need to be filled out here already.
-	// At this point, functions are the only texts(non numeric) in the formula
-	formula = insertFunctionValues(formula);
 
 	if(!isEquationCorrect(formula)){
 		cout << "Incorrect equation\n";

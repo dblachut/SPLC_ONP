@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "Functions.h"
 
 using namespace std;
 
@@ -45,7 +46,35 @@ private:
 
 Constants Constants::inst = Constants();
 
-class Operators
+class Operator
+{
+public:
+	Operator(string name, int priority)
+	{
+		this->name = name;
+		this->priority = priority;
+	}
+
+	Operator(char name, int priority)
+	{
+		Operator(string(1,name),priority);
+	}
+
+	string getName()
+	{
+		return name;
+	}
+
+	int getPriority()
+	{
+		return priority;
+	}
+private:
+	string name;
+	int priority;
+};
+
+class Operators // IMPORTANT: function names are considered to be operators as well in the algorithm
 {
 public:
 
@@ -53,38 +82,58 @@ public:
 
 	static bool isOperator(char c)
 	{
-		return std::find(inst.operators.begin(), inst.operators.end(), c) != inst.operators.end();
+		return isOperator(string(1,c));
 	}
 
-	static bool isPrioritized(char first, char second)
+	static bool isOperator(string name)
+	{
+		for(int i = 0; i < inst.operators.size();i++)
+		{
+			if(inst.operators[i].getName() == name)
+				return true;
+		}
+		return false;
+	}
+
+	static bool isPrioritized(string first, string second)
 	{
 		if(!isOperator(first) || !isOperator(second))
 		{
 			cout << first << " lub " << second << " to nie operator!" << endl;
 			return false;
 		}
-		int idx1 = std::distance(inst.operators.begin(), std::find(inst.operators.begin(), inst.operators.end(), first));
-		int idx2 = std::distance(inst.operators.begin(), std::find(inst.operators.begin(), inst.operators.end(), second));
+		int p1,p2;
+		for(int i = 0; i < inst.operators.size();i++)
+		{
+			if(inst.operators[i].getName() == first)
+				p1 = inst.operators[i].getPriority();
+			if(inst.operators[i].getName() == second)
+				p2 = inst.operators[i].getPriority();
+		}
 
-		return inst.priority[idx1] > inst.priority[idx2];
+		return p1 > p2;
 	}
+
+	static bool isPrioritized(string first, char second){return isPrioritized(first,string(1,second));}
+	static bool isPrioritized(char first, string second){return isPrioritized(string(1,first),second);}
+	static bool isPrioritized(char first, char second){return isPrioritized(string(1,first),string(1,second));}
 
 private:
 
 	Operators()
 	{
-		char oper[7] = {'^', '*', '/', ':', '%', '+', '-'};
+		string oper[7] = {"^", "*", "/", ":", "%", "+", "-"};
 		int  prio[7] = { 3,   2,   2,   2,   2,   1,   1 };
 
-		for(int i=0; i<7; i++)
-		{
-			operators.push_back(oper[i]);
-			priority.push_back(prio[i]);
-		}
+		for(int i=0; i<7; i++)		
+			operators.push_back(Operator(oper[i],prio[i]));		
+
+		// add function names with highest priority
+		for (string s : Functions::inst.getNames())
+			operators.push_back(Operator(s,4));
 	}
 
-	vector<char> operators;
-	vector<int>  priority;
+	vector<Operator> operators;
 };
 
 Operators Operators::inst = Operators();
