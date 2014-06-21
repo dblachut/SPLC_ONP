@@ -10,6 +10,7 @@ int main ()
 		if(line == "")
 			break;
 
+		//check if the formula is correct
 		if(!isFormulaCorrect(line)){
 			cout << "Incorrect formula\n";
 			continue;
@@ -20,20 +21,13 @@ int main ()
 		//get user parameters values here
 		line = getUserValues(line);
 
-		//substitute constant names with values
-		line = insertConstantValues(line);
+		//parse formula ( make an equation out of it )
+		line = parseFormula(line);
 		
-		// TODO: substitute functions with their calculated values NOTE: user arguments need to be filled out here already
-
-
-		if(!isEquationCorrect(line)){
-			cout << "Incorrect equation\n";
-			continue;
-		}else{
-			cout << "Equation correct\n";
-		}
-		
+		//translate the equation to Reverse Polish Notation
 		translateToONP(line);
+
+		//calculate value TODO:
 	}
 
 	return 0;

@@ -65,6 +65,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClInclude Include="Functions.h" />
     <ClInclude Include="Logic.h" />
     <ClInclude Include="ONP_translator.h">
       <FileType>CppCode</FileType>
