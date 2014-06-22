@@ -68,4 +68,17 @@ double sqrtFunction(vector<double> args)
 	return sqrt(args[0]);
 }
 
+double factorialFunction(vector<double> args)
+{	
+	args[0] = (double)((int)args[0]);
+	if(args[0] == 1 || args[0] == 0)
+		return 1;
+	else
+	{
+		double a = args[0];
+		args[0]--;
+		return a * factorialFunction(args);
+	}
+}
+
 #endif // !_FUNCTIONS_H_
