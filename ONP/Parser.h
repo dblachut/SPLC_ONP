@@ -96,6 +96,7 @@ bool isFormulaCorrect(string &formula)
 {
 	int openingBrackets = 0;
 	int closingBrackets = 0;
+	int alternateArguments = 0;
 
 	for(int i=0; i<formula.length(); ++i)
 	{
@@ -128,7 +129,77 @@ bool isFormulaCorrect(string &formula)
 				getNameWithSpaces(formula, i);
 			if(formula[i] == ':')
 			{
-				//todo
+				if(formula[i+1] != 'Z')
+				{
+					cout << "Error no Z sign after declaration (:) of alternate argument!" << endl;
+					return false;
+				}
+				i += 2;
+				if(++alternateArguments > 1)
+				{
+					cout << "Error number of alternate arguments is limited to 1!" << endl;
+					return false;
+				}
+				if(formula[i] != '}')
+				{
+					if(formula[i] == '(')
+					{
+						i++;
+						if(formula[i] != ')')
+						{
+							if(getNumber(formula, i) == "")
+							{
+								cout << "Error unknown sign " << formula[i] << " after ( in alternate argument!" << endl;
+								return false;
+							}
+							else
+							{
+								for(int j=0; j<2; j++)
+								{
+									while(formula[i] == ' ')
+										i++;
+									if(formula[i] != ARG_SEPARATOR)
+									{
+										cout << "Error unknown sign " << formula[i] << " after (number in alternate argument!" << endl;
+										return false;
+									}
+									i++;
+									while(formula[i] == ' ')
+										i++;
+									if(getNumber(formula, i) == "")
+									{
+										cout << "Error not a number in () in alternate argument!" << endl;
+										return false;
+									}
+								}
+								if(formula[i] != ')')
+								{
+									cout << "Error no closing bracket ) in alternate argument!" << endl;
+									return false;
+								}
+							}
+						}
+					}
+					else if (formula[i] == '[')
+					{
+						i++;
+						if(getNumber(formula, i) == "")
+						{
+							cout << "Error unknown sign " << formula[i] << " after [ in alternate argument!" << endl;
+							return false;
+						}
+						else if(formula[i] != ']')
+						{
+							cout << "Error unknown sign " << formula[i] << " after [number in alternate argument!" << endl;
+							return false;
+						}
+					}
+					else
+					{
+						cout << "Error unknown sign " << formula[i] << " after Z in alternate argument!" << endl;
+						return false;
+					}
+				}
 			}
 		}
 		if(formula[i] == '}')
