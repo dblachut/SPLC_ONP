@@ -12,7 +12,6 @@ double addFunction(vector<double> args)
 	return args[0] + args[1];
 }
 
-// returns args[0] - args[1]
 double subtractFunction(vector<double> args)
 {
 	return args[0] - args[1];

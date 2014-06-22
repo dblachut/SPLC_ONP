@@ -17,17 +17,21 @@ double calculateONP(string line)
 	std::vector<double> stack;
 	std::cout << "Input\t\tOperation\t\tStack after" << std::endl;
 	std::string token;
-	while (iss >> token) {
+	while (iss >> token)
+	{
 		std::cout << token << "\t\t";
 		double tokenNum;
-		if (std::istringstream(token) >> tokenNum) {
+		if (std::istringstream(token) >> tokenNum)
+		{
 			std::cout << "Push\t\t\t";
 			stack.push_back(tokenNum);
-		} else {
+		}
+		else
+		{
 			std::cout << "Operate\t\t\t";			
-			if(Operators::inst.isOperator(token))
+			if(Operators::isOperator(token))
 			{
-				int argc = Operators::inst.getOperator(token).getArgc();
+				int argc = Operators::getOperator(token).getArgc();
 				vector<double> tmp;
 				for (int i = 0; i < argc; i++)
 				{
@@ -35,13 +39,12 @@ double calculateONP(string line)
 					stack.pop_back();
 				}
 				reverse(tmp.begin(),tmp.end());
-				stack.push_back(
-					Operators::inst.getOperator(token).getFunction()
-					(tmp));
+				stack.push_back( Operators::getOperator(token).getFunction()(tmp) );
 			} // todo = in next line
 			else if (token == "=");
 			// do nothing
-			else { //just in case
+			else
+			{ //just in case
 				std::cerr << "Error" << std::endl;
 				std::exit(1);
 			}

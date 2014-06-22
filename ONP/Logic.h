@@ -5,11 +5,15 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
+#include <sstream>
 #include "Functions.h"
 
 using namespace std;
 
 #define DEC_SEPARATOR '.'
+
+void toUpper(string&);
 
 class Constants
 {
@@ -18,17 +22,23 @@ public:
 
 	static bool constantExists(string name)
 	{
-		if(inst.constants.find(name) == inst.constants.end())
-			return false;
-		else
-			return true;
+		toUpper(name);
+		return inst.constants.find(name) != inst.constants.end();
 	}
 
 	// constantExists should be called before to check 
 	// if a constant of given name is on the list
 	static double constantValue(string name)
 	{
+		toUpper(name);
 		return inst.constants[name];
+	}
+
+	// return value as string
+	static string constantStringValue(string name)
+	{
+		toUpper(name);
+		return std::to_string(inst.constants[name]);
 	}
 
 private:
@@ -37,10 +47,10 @@ private:
 	// Constant names can only be formed with letters and digits
 	Constants()					// TODO: add more constants			
 	{
-		constants["pi"] = 3.14159265359;
-		constants["three"] = 3.00;
-		constants["luckynumber"] = 7;
-		constants["p1"] = 1.1111111;
+		constants["PI"] = 3.14159265359;
+		constants["THREE"] = 3.00;
+		constants["LUCKYNUMBER"] = 7;
+		constants["P1"] = 1.1111111;
 	}
 };
 
@@ -131,7 +141,7 @@ public:
 	{
 		if(!isOperator(first) || !isOperator(second))
 		{
-			cout << first << " lub " << second << " to nie operator!" << endl;
+			cout << first << " or " << second << " is not an Operator!" << endl;
 			return false;
 		}
 		int p1,p2;
@@ -187,29 +197,54 @@ bool isLetter(char c)
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
+void toUpper(string &text)
+{
+	std::transform(text.begin(), text.end(),text.begin(), ::toupper);
+}
+
+// get number from pattern, starding from index
+// this function implements decimal separator and increments index to value after number
 string getNumber(string pattern, int& index)
 {
 	string number;
 
-	while(isDigit(pattern[index]) && index < pattern.length())
-	{
-		number += pattern[index];
-		index++;
-	}
+	while(index < pattern.length() && isDigit(pattern[index]))
+		number += pattern[index++];
+
 	if(pattern.length() != 0 && pattern[index] == DEC_SEPARATOR)
 	{
-		number += pattern[index];
-		index++;
+		number += pattern[index++];
+
 		if(!isDigit(pattern[index]))
-			cout << "Brak liczby po separatorze dziesiêtnym!";
-		while(isDigit(pattern[index]) && index < pattern.length())
-		{
-			number += pattern[index];
-			index++;
-		}
+			throw("No digit after decimal separator!");
+
+		while(index < pattern.length() && isDigit(pattern[index]))
+			number += pattern[index++];
 	}
 
 	return number;
-}  
+}
+
+// get name (name contains letters and digits) from pattern, starding from index
+// this function increments index to value after name
+string getName(string pattern, int& index)
+{
+	string name;
+
+	while( (index < pattern.length()) && (isLetter(pattern[index]) || isDigit(pattern[index])) )
+		name += pattern[index++];
+
+	return name;
+}
+
+string getNameWithSpaces(string pattern, int& index)
+{
+	string name;
+
+	while( (index < pattern.length()) && (isLetter(pattern[index]) || isDigit(pattern[index]) || pattern[index] == ' ') )
+		name += pattern[index++];
+
+	return name;
+}
 
 #endif // !_LOGIC_H_

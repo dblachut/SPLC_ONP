@@ -31,12 +31,12 @@ bool isEquationCorrect(string equation)
 			operatorCount++;
 			if(i+1<equation.length() && equation[i+1] == ')')
 			{
-				cout << "Error operatora przed nawiasem!" << endl;
+				cout << "Error operator before ) bracket!" << endl;
 				return false;
 			}
 			if(operatorCount>1)
 			{
-				cout << "Error dwoch operatorow obok siebie!" << endl;
+				cout << "Error two operators cannot be next to eachother!" << endl;
 				return false;
 			}
 		}
@@ -51,7 +51,7 @@ bool isEquationCorrect(string equation)
 	}
 	if(openingBrackets != closingBrackets)
 	{
-		cout << "Error nie zgadza sie liczba nawiasow!" << endl;
+		cout << "Error wrong number of () brackets!" << endl;
 		return false;
 	}
 	return true;
@@ -64,10 +64,8 @@ string translateToONP(string equation)
 	vector<string> stack;
 
 	if(equation[0] == '-')
-	{		
-		string tmp = "0";
-		tmp.append(equation);
-		equation = tmp;
+	{
+		equation = "0" + equation;
 	}
 
 	for(int i=0; i<equation.length(); ++i)
@@ -83,66 +81,68 @@ string translateToONP(string equation)
 
 		if(i < equation.length())
 			switch(equation[i])
-		{
-			case '=':
-				while( !stack.empty() )
-					appendOutput(stack.back()), stack.pop_back();
-				output += equation[i];
-				if(i != equation.length()-1)
-					cout << "Znak = nie na koncu równania";
-				break;
-			case '(':
-				stack.push_back(string(1,equation[i]));
-				break;
-			case ')':
-				while(!stack.empty() && stack.back() != "(")
-					appendOutput(stack.back()), stack.pop_back();
-				stack.pop_back();
-				break;
-			case ',': //TODO: coma or semicolon?
-				// do nothing
-				break;
-			default:
-				if( Operators::isOperator(equation[i]) )
-				{
-					if(equation[i] == '-' && i != 0)		//sprawdzamy wystepowanie (-a)
-					{
-						int tmp = i-1;
-						while(equation[tmp] == ' ')
-							tmp--;
-						if(equation[tmp] == '(')			//obslugujemy je przez zapisanie 0 - a
-						{
-							appendOutput('0');
-						}
-					}
-
-					while( !stack.empty() && stack.back() != "(" && !Operators::isPrioritized(equation[i], stack.back()) )
+			{
+				case '=':
+					while( !stack.empty() )
 						appendOutput(stack.back()), stack.pop_back();
-
+					output += equation[i];
+					if(i != equation.length()-1)
+						cout << "= sign not on the end of equation\n";
+					break;
+				case '(':
 					stack.push_back(string(1,equation[i]));
 					break;
-				}else{ // either a function or an error
-					if(!isLetter(equation[i])) // error
+				case ')':
+					while(!stack.empty() && stack.back() != "(")
+						appendOutput(stack.back()), stack.pop_back();
+					stack.pop_back();
+					break;
+				case ',': //TODO: coma or semicolon?
+					// do nothing
+					break;
+				default:
+					if( Operators::isOperator(equation[i]) )
 					{
-						cout << "Error, nieznany znak: " << equation[i];
-						return "";
-					}
-					// Get function name
-					string fName = "";
-					while(equation[i] != '(')					
-						fName+=equation[i++];
-					i--;
+						if(equation[i] == '-' && i != 0)		//sprawdzamy wystepowanie (-a)
+						{
+							int tmp = i-1;
+							while(equation[tmp] == ' ')
+								tmp--;
+							if(equation[tmp] == '(')			//obslugujemy je przez zapisanie 0 - a
+							{
+								appendOutput('0');
+							}
+						}
 
-					// recognize the function and put it where it belongs
-					if(!Operators::inst.isOperator(fName))//Functions::inst.functionExists(fName))
-					{
-						cout << "Error, function " << fName << " does not exist\n";
-						return "";
-					}
+						while( !stack.empty() && stack.back() != "(" && !Operators::isPrioritized(equation[i], stack.back()) )
+							appendOutput(stack.back()), stack.pop_back();
 
-					stack.push_back(fName);
-				}
-		}
+						stack.push_back(string(1,equation[i]));
+						break;
+					}
+					else
+					{ // either a function or an error
+						if(!isLetter(equation[i])) // error
+						{
+							cout << "Error, unknown char: " << equation[i] << endl;
+							return "";
+						}
+						// Get function name
+						string fName = "";
+						while(equation[i] != '(')					
+							fName+=equation[i++];
+						i--;
+
+						// recognize the function and put it where it belongs
+						if(!Operators::isOperator(fName))
+						{
+							cout << "Error, function " << fName << " does not exist\n";
+							return "";
+						}
+
+						stack.push_back(fName);
+					}
+			}
 
 	}
 	while( !stack.empty() )
