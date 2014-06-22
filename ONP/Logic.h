@@ -169,7 +169,8 @@ private:
 		operators.push_back(Operator("cos", 4, 1, cosFunction));
 		operators.push_back(Operator("sqrt", 4, 1, sqrtFunction));
 		operators.push_back(Operator("pow", 4, 2, powFunction));
-		operators.push_back(Operator("rand", 4, 0, randFunction));		
+		operators.push_back(Operator("rand", 4, 0, randFunction));	
+		operators.push_back(Operator("fact", 4, 1, factorialFunction));	
 	}
 
 	vector<Operator> operators;
