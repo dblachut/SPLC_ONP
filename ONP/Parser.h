@@ -112,13 +112,26 @@ bool isFormulaCorrect(string &formula)
 		if(formula[i] == '{')
 		{
 			openingBrackets++;
-			if(i+1 >= formula.length() || formula[i+1] != '$')
+			i++;
+			if(i >= formula.length() || formula[i] != '$')
 			{
 				cout << "Error no '$' sign in user argument!" << endl;
 				return false;
 			}
+			if(!isLetter(formula[++i])) //auto-numering of arguments
+			{
+				string toInsert = std::to_string(openingBrackets);
+				formula.insert(i, toInsert);
+				i += toInsert.length();
+			}
+			else
+				getNameWithSpaces(formula, i);
+			if(formula[i] == ':')
+			{
+				//todo
+			}
 		}
-		else if(formula[i] == '}')
+		if(formula[i] == '}')
 			closingBrackets++;
 
 		if(isLetter(formula[i]))
