@@ -104,6 +104,9 @@ string translateToONP(string equation)
 					while(!stack.empty() && stack.back() != "(")
 						appendOutput(stack.back()), stack.pop_back();
 					stack.pop_back();
+					//if we were parsing function arguments, take function from stack
+					if(!stack.empty() && Operators::isFunction(stack.back()))
+						appendOutput(stack.back()), stack.pop_back();
 					break;
 				case ARG_SEPARATOR: //TODO: coma or semicolon?
 					// do nothing

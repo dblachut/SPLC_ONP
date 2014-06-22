@@ -138,6 +138,16 @@ public:
 		return false;
 	}
 
+	static bool isFunction(string name)
+	{
+		for(int i = 0; i < inst.operators.size();i++)
+		{
+			if(inst.operators[i].getName() == name)
+				return inst.operators[i].getName().length() != 1; //operators are one chars
+		}
+		return false;
+	}
+
 	static bool isPrioritized(string first, string second)
 	{
 		if(!isOperator(first) || !isOperator(second))
