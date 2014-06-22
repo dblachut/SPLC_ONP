@@ -33,6 +33,10 @@ double calculateONP(string line)
 			{
 				int argc = Operators::getOperator(token).getArgc();
 				vector<double> tmp;
+
+				if(argc == -1)	//dynamic amount of arguments
+					argc = stack.back(), stack.pop_back();
+
 				for (int i = 0; i < argc; i++)
 				{
 					tmp.push_back(stack.back());

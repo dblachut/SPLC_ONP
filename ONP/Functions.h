@@ -82,4 +82,14 @@ double factorialFunction(vector<double> args)
 	}
 }
 
+double averageFunction(vector<double> args)
+{
+	double sum = 0;
+
+	for each (double var in args)
+		sum += var;
+
+	return sum/args.size();
+}
+
 #endif // !_FUNCTIONS_H_
