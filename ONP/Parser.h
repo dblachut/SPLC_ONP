@@ -43,6 +43,8 @@ bool checkFunctionArgumentAmount(string &pattern, int& index)
 				
 		for(index; index<pattern.length(); index++)
 		{
+			while(pattern[index] == ' ')
+				index++;
 			if(getNumber(pattern, index) != "")
 				argEntered++;
 			while(pattern[index] == ' ')
@@ -71,14 +73,13 @@ bool checkFunctionArgumentAmount(string &pattern, int& index)
 					return false;
 				}
 			}
-						
-			while(pattern[index] == ' ')
-				index++;
 		}
 
 		if(argCount == -1) //we need to add argument number due to dynamic amount of arguments
 		{
-			pattern.insert(index, ARG_SEPARATOR + std::to_string(argEntered));
+			string toInsert = ARG_SEPARATOR + std::to_string(argEntered);
+			pattern.insert(index,  toInsert);
+			index += toInsert.length();
 		}
 		else if (argCount != argEntered)
 		{
