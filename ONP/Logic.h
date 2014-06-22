@@ -12,6 +12,7 @@
 using namespace std;
 
 #define DEC_SEPARATOR '.'
+#define ARG_SEPARATOR ','
 
 void toUpper(string&);
 

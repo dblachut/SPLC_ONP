@@ -3,8 +3,94 @@
 #include "Logic.h"
 #include "Functions.h"
 
+// checks if constraint name exist and increment index
+bool checkConstantName(string pattern, int& index)
+{
+	if(index >= pattern.length() || !isLetter(pattern[index]))
+	{
+		cout << "Error no constant name after '#' sign!" << endl;
+		return false;
+	}
 
-bool isFormulaCorrect(string formula)
+	string constName = getName(pattern, index);
+
+	if( !Constants::constantExists(constName) )
+	{
+		cout << "Error const " << constName << " does not exists!" << endl;
+		return false;
+	}
+	
+	return true;
+}
+
+// checks if function has proper amount of agruments and sets it in dynamical one
+// adidionally increment index
+bool checkFunctionArgumentAmount(string &pattern, int& index)
+{
+	string fName = "";
+	while(pattern[index] != '(')					
+		fName+=pattern[index++];
+	index++;
+	if(!Operators::isOperator(fName))
+	{
+		cout << "Error, function " << fName << " does not exist\n";
+		return false;
+	}
+	else
+	{
+		int argCount = Operators::getOperator(fName).getArgc();
+		int argEntered = 0;
+				
+		for(index; index<pattern.length(); index++)
+		{
+			if(getNumber(pattern, index) != "")
+				argEntered++;
+			while(pattern[index] == ' ')
+				index++;
+			if(pattern[index] != ARG_SEPARATOR)
+			{
+				if(pattern[index] == ')')
+					break;
+				else if(isLetter(pattern[index]))
+				{
+					if(!checkFunctionArgumentAmount(pattern, index))
+						return false;
+					else
+						argEntered++; //functon as an argment
+				}
+				else if(pattern[index] == '#')
+				{
+					index++;
+					if(!checkConstantName(pattern, index))
+						return false;
+					argEntered++; //const as an argument
+				}
+				else
+				{
+					cout << "Error, unknown sign " << pattern[index] << " in function arguments\n";
+					return false;
+				}
+			}
+						
+			while(pattern[index] == ' ')
+				index++;
+		}
+
+		if(argCount == -1) //we need to add argument number due to dynamic amount of arguments
+		{
+			pattern.insert(index, ARG_SEPARATOR + std::to_string(argEntered));
+		}
+		else if (argCount != argEntered)
+		{
+			cout << "Error, wrong amount of parameters for function " << fName << ". Got: " << argEntered << ", expected: " << argCount << endl;
+			return false;
+		}
+		index++;
+	}
+}
+
+//this function also inserts the argument number in functions with dynamic amount of arguments
+bool isFormulaCorrect(string &formula)
 {
 	int openingBrackets = 0;
 	int closingBrackets = 0;
@@ -17,19 +103,8 @@ bool isFormulaCorrect(string formula)
 		if(formula[i] == '#')
 		{
 			i++;
-			if(i >= formula.length() || !isLetter(formula[i]))
-			{
-				cout << "Error no constant name after '#' sign!" << endl;
+			if(!checkConstantName(formula, i))
 				return false;
-			}
-
-			string constName = getName(formula, i);
-
-			if( !Constants::constantExists(constName) )
-			{
-				cout << "Error const " << constName << " does not exists!" << endl;
-				return false;
-			}
 		}
 
 		if(formula[i] == '{')
@@ -43,6 +118,12 @@ bool isFormulaCorrect(string formula)
 		}
 		else if(formula[i] == '}')
 			closingBrackets++;
+
+		if(isLetter(formula[i]))
+		{
+			if(!checkFunctionArgumentAmount(formula, i))
+				return false;
+		}
 	}
 
 	if(openingBrackets != closingBrackets)
@@ -131,10 +212,10 @@ string getUserValues(string formula)
 
 			while( formula[i] != ')' )
 			{
-				if( formula[i] != ',' )
+				if( formula[i] != ARG_SEPARATOR )
 				{
 					tmpArg += formula[i++];
-				}else{ // formula[i] == ','
+				}else{ // formula[i] == ARG_SEPARATOR
 					args.push_back(atof(tmpArg.c_str()));
 					tmpArg = "";
 					i++;

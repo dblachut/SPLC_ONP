@@ -45,7 +45,15 @@ bool isEquationCorrect(string equation)
 			if(equation[i] == '(')
 				openingBrackets++;
 			else if(equation[i] == ')')
+			{
 				closingBrackets++;
+				if(i+1<equation.length() && equation[i+1] != ')' && !Operators::isOperator(equation[i+1]))
+				{
+					cout << "Error no operator after closing bracket!" << endl;
+					return false;
+				}
+			}
+			
 			operatorCount = 0;
 		}
 	}
@@ -97,7 +105,7 @@ string translateToONP(string equation)
 						appendOutput(stack.back()), stack.pop_back();
 					stack.pop_back();
 					break;
-				case ',': //TODO: coma or semicolon?
+				case ARG_SEPARATOR: //TODO: coma or semicolon?
 					// do nothing
 					break;
 				default:
