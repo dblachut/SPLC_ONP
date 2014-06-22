@@ -49,15 +49,17 @@ Constants Constants::inst = Constants();
 class Operator
 {
 public:
-	Operator(string name, int priority)
+	Operator(string name, int priority, int argc, double (*function)(vector<double>))
 	{
 		this->name = name;
 		this->priority = priority;
+		this->argc = argc;
+		this->function = function;
 	}
 
-	Operator(char name, int priority)
+	Operator(char name, int priority, int argc, double (*function)(vector<double>))
 	{
-		Operator(string(1,name),priority);
+		Operator(string(1,name),priority,argc,function);
 	}
 
 	string getName()
@@ -69,9 +71,25 @@ public:
 	{
 		return priority;
 	}
+
+	int getArgc()
+	{
+		return argc;
+	}
+
+	double(*getFunction())(vector<double>)
+	{
+		return function;
+	}
+
+	Operator() // warning, creates an invalid object.
+	{
+	}
 private:
 	string name;
 	int priority;
+	int argc;
+	double (*function)(vector<double>);
 };
 
 class Operators // IMPORTANT: function names are considered to be operators as well in the algorithm
@@ -79,6 +97,20 @@ class Operators // IMPORTANT: function names are considered to be operators as w
 public:
 
 	static Operators inst;
+
+	static Operator getOperator(string name)
+	{
+		Operator a;
+		for(int i = 0; i < inst.operators.size();i++)
+		{
+			if(inst.operators[i].getName() == name)
+			{
+				a = inst.operators[i];
+				break;
+			}
+		}
+		return a;
+	}
 
 	static bool isOperator(char c)
 	{
@@ -122,15 +154,22 @@ private:
 
 	Operators()
 	{
-		string oper[7] = {"^", "*", "/", ":", "%", "+", "-"};
-		int  prio[7] = { 3,   2,   2,   2,   2,   1,   1 };
+		//string oper[7] = {"^", "*", "/", ":", "%", "+", "-"};
+		//int  prio[7] = { 3,   2,   2,   2,   2,   1,   1 };
 
-		for(int i=0; i<7; i++)		
-			operators.push_back(Operator(oper[i],prio[i]));		
+		operators.push_back(Operator("^", 3, 2, powFunction));		
+		operators.push_back(Operator("*", 2, 2, multiplyFunction));
+		operators.push_back(Operator("/", 2, 2, divideFunction));
+		operators.push_back(Operator(":", 2, 2, divideIntFunction));
+		operators.push_back(Operator("%", 2, 2, moduloFunction));
+		operators.push_back(Operator("+", 1, 2, addFunction));
+		operators.push_back(Operator("-", 1, 2, subtractFunction));
 
-		// add function names with highest priority
-		for (string s : Functions::inst.getNames())
-			operators.push_back(Operator(s,4));
+		operators.push_back(Operator("sin", 4, 1, sinFunction));
+		operators.push_back(Operator("cos", 4, 1, cosFunction));
+		operators.push_back(Operator("sqrt", 4, 1, sqrtFunction));
+		operators.push_back(Operator("pow", 4, 2, powFunction));
+		operators.push_back(Operator("rand", 4, 0, randFunction));		
 	}
 
 	vector<Operator> operators;

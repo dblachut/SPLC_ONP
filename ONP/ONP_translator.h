@@ -57,7 +57,7 @@ bool isEquationCorrect(string equation)
 	return true;
 }
 
-void translateToONP(string equation)
+string translateToONP(string equation)
 {
 	string number = "";
 	output = "";
@@ -125,7 +125,7 @@ void translateToONP(string equation)
 					if(!isLetter(equation[i])) // error
 					{
 						cout << "Error, nieznany znak: " << equation[i];
-						return;
+						return "";
 					}
 					// Get function name
 					string fName = "";
@@ -137,7 +137,7 @@ void translateToONP(string equation)
 					if(!Operators::inst.isOperator(fName))//Functions::inst.functionExists(fName))
 					{
 						cout << "Error, function " << fName << " does not exist\n";
-						return;
+						return "";
 					}
 
 					stack.push_back(fName);
@@ -150,5 +150,6 @@ void translateToONP(string equation)
 
 	cout << "Przed: " << equation << endl;
 	cout << "Po: " << output << endl;
+	return output;
 }  
 #endif // !_TRANSLATOR_H_

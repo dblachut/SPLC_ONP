@@ -1,5 +1,6 @@
 #include "ONP_translator.h"
 #include "Parser.h"
+#include "ONP_calculator.h"
 
 int main ()
 {
@@ -25,9 +26,10 @@ int main ()
 		line = parseFormula(line);
 		
 		//translate the equation to Reverse Polish Notation
-		translateToONP(line);
+		line = translateToONP(line);
 
-		//calculate value TODO:
+		//calculate value
+		cout << "Result = " << calculateONP(line) << endl;
 	}
 
 	return 0;
