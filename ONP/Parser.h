@@ -57,14 +57,15 @@ bool checkFunctionArgumentAmount(string &pattern, int& index)
 				{
 					if(!checkFunctionArgumentAmount(pattern, index))
 						return false;
-					else
-						argEntered++; //functon as an argment
+					index--;
+					argEntered++; //functon as an argment
 				}
 				else if(pattern[index] == '#')
 				{
 					index++;
 					if(!checkConstantName(pattern, index))
 						return false;
+					index--;
 					argEntered++; //const as an argument
 				}
 				else
