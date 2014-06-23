@@ -332,7 +332,8 @@ bool checkArgument(string &pattern, int &index, int argumentNumber)
 		cout << "Error no '$' sign in user argument!" << endl;
 		return false;
 	}
-	if(!isLetter(pattern[++index])) //auto-numering of arguments
+	index++;
+	if( !(isLetter(pattern[index]) || isDigit(pattern[index])) ) //auto-numering of arguments
 	{
 		string toInsert = std::to_string(argumentNumber);
 		pattern.insert(index, toInsert);
