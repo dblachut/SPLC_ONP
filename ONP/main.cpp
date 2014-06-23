@@ -11,7 +11,7 @@ int main ()
 		std::getline(std::cin, line);
 		if(line == "")
 			break;
-
+		replaceAll(line, " ", "");	//get rid of all spaces
 		//check if the formula is correct
 		if(!isFormulaCorrect(line))
 		{

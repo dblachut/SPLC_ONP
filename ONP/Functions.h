@@ -75,7 +75,7 @@ double factorialFunction(vector<double> args)
 		return 1;
 	else
 	{
-		int a = args[0];
+		int a = (int)args[0];
 		while(--a)
 			args[0] *= a;
 		return args[0];

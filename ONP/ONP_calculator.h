@@ -35,7 +35,7 @@ double calculateONP(string line)
 				vector<double> tmp;
 
 				if(argc == -1)	//dynamic amount of arguments
-					argc = stack.back(), stack.pop_back();
+					argc = (int)stack.back(), stack.pop_back();
 
 				for (int i = 0; i < argc; i++)
 				{

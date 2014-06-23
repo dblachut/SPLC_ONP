@@ -10,7 +10,7 @@
 #include "Functions.h"
 
 using namespace std;
-
+typedef unsigned int uint;
 #define DEC_SEPARATOR '.'
 #define ARG_SEPARATOR ','
 
@@ -112,7 +112,7 @@ public:
 	static Operator getOperator(string name)
 	{
 		Operator a;
-		for(int i = 0; i < inst.operators.size();i++)
+		for(int i = 0; i < inst.operators.size(); i++)
 		{
 			if(inst.operators[i].getName() == name)
 			{
@@ -221,6 +221,9 @@ string getNumber(string pattern, int& index)
 {
 	string number;
 
+	if(pattern[index] == '-')
+		number += pattern[index++];
+
 	while(index < pattern.length() && isDigit(pattern[index]))
 		number += pattern[index++];
 
@@ -258,6 +261,18 @@ string getNameWithSpaces(string pattern, int& index)
 		name += pattern[index++];
 
 	return name;
+}
+
+void replaceAll(std::string& str, const std::string& from, const std::string& to)
+{
+    if(from.empty())
+        return;
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos)
+	{
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length();
+    }
 }
 
 #endif // !_LOGIC_H_

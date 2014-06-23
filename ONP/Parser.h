@@ -7,6 +7,8 @@
 int gAlternatingArgPosition = 0; // I don't think its the best way to do it
 int gAlternatingArgAmount = 0;
 
+bool checkArgument(string pattern, int &index, int argumentNumber);
+
 // checks if constraint name exist and increment index
 bool checkConstantName(string pattern, int& index)
 {
@@ -29,7 +31,7 @@ bool checkConstantName(string pattern, int& index)
 
 // checks if function has proper amount of agruments and sets it in dynamical one
 // adidionally increment index
-bool checkFunctionArgumentAmount(string &pattern, int& index)
+bool checkFunctionArgumentAmount(string &pattern, int& index, int &argumentNumber)
 {
 	string fName = "";
 	while(pattern[index] != '(')					
@@ -59,7 +61,7 @@ bool checkFunctionArgumentAmount(string &pattern, int& index)
 					break;
 				else if(isLetter(pattern[index]))
 				{
-					if(!checkFunctionArgumentAmount(pattern, index))
+					if(!checkFunctionArgumentAmount(pattern, index, argumentNumber))
 						return false;
 					index--;
 					argEntered++; //functon as an argment
@@ -74,9 +76,17 @@ bool checkFunctionArgumentAmount(string &pattern, int& index)
 				}
 				else if(pattern[index] == '{')
 				{
-					while(pattern[index] != '}')
-						index++;
-					argEntered++; //user argument as argument
+					++index;
+					argumentNumber++;
+					if(!checkArgument(pattern, index, argumentNumber))
+						return false;
+					++index;
+					if(pattern[index] != '}')
+					{
+						cout << "Error, no closing bracket } in user argument in function arguments!\n";
+						return false;
+					}
+					argEntered++; //user argument as function argument
 				}
 				else
 				{
@@ -99,21 +109,60 @@ bool checkFunctionArgumentAmount(string &pattern, int& index)
 		}
 		index++;
 	}
+	return true;
 }
 
-bool checkAlternatingArgument(string pattern, int &index, vector<string> &enteredVals = vector<string>(), bool iWantValues = false)
+vector<string> getAlternatingArgumentValues(string pattern, int &index)
+{
+	vector<string> numbers;
+
+	if(pattern[index] == ':')
+	{
+		index += 2;						//index on sign after :Z
+		if(pattern[index] != '}')		//checks if argument is alternating
+		{
+			if(pattern[index] == '(')	//alernating with step
+			{
+				index++;
+				if(pattern[index] != ')')
+				{
+					numbers.push_back(getNumber(pattern, index));
+
+					for(int j=0; j<2; j++)
+					{
+						while(pattern[index] == ' ')
+							index++;
+						index++;		//skip separator sign
+						while(pattern[index] == ' ')
+							index++;
+						numbers.push_back(getNumber(pattern, index));
+					}
+				}
+			}
+			else if (pattern[index] == '[') //alternating with values from table
+			{
+				index++;
+				numbers.push_back(getNumber(pattern, index));
+			}
+		}
+	}
+	return numbers;
+}
+
+//checks syntax for alternating argument, sets gAlternatingArgPosition and inctementing index
+bool checkAlternatingArgument(string pattern, int &index)
 {
 	if(pattern[index] == ':')
 	{
 		gAlternatingArgPosition = index;
 		vector<string> numbers;
-		if(!iWantValues && pattern[index+1] != 'Z')
+		if(pattern[index+1] != 'Z')
 		{
 			cout << "Error no Z sign after declaration (:) of alternating argument!" << endl;
 			return false;
 		}
 		index += 2;
-		if(!iWantValues && ++gAlternatingArgAmount > 1)
+		if(++gAlternatingArgAmount > 1)
 		{
 			cout << "Error number of alternating arguments is limited to 1!" << endl;
 			return false;
@@ -125,9 +174,8 @@ bool checkAlternatingArgument(string pattern, int &index, vector<string> &entere
 				index++;
 				if(pattern[index] != ')')
 				{
-					
 					numbers.push_back(getNumber(pattern, index));
-					if(!iWantValues && numbers.back() == "")
+					if(numbers.back() == "")
 					{
 						cout << "Error unknown sign " << pattern[index] << " after ( in alternating argument!" << endl;
 						return false;
@@ -138,7 +186,7 @@ bool checkAlternatingArgument(string pattern, int &index, vector<string> &entere
 						{
 							while(pattern[index] == ' ')
 								index++;
-							if(!iWantValues && pattern[index] != ARG_SEPARATOR)
+							if(pattern[index] != ARG_SEPARATOR)
 							{
 								cout << "Error unknown sign " << pattern[index] << " after (number in alternating argument!" << endl;
 								return false;
@@ -147,22 +195,22 @@ bool checkAlternatingArgument(string pattern, int &index, vector<string> &entere
 							while(pattern[index] == ' ')
 								index++;
 							numbers.push_back(getNumber(pattern, index));
-							if(!iWantValues && numbers.back() == "")
+							if(numbers.back() == "")
 							{
 								cout << "Error not a number in () in alternating argument!" << endl;
 								return false;
 							}
 						}
-						if(!iWantValues && pattern[index] != ')')
+						if(pattern[index] != ')')
 						{
 							cout << "Error no closing bracket ) in alternating argument!" << endl;
 							return false;
 						}
 						//we need to check if the values inserted are correct
-						double change = atof(numbers[2].c_str());
+						double step = atof(numbers[2].c_str());
 						double to = atof(numbers[1].c_str());
 						double from = atof(numbers[0].c_str());
-						if(!iWantValues && (from > to || change > (to - from)))
+						if((from > to || step > (to - from)))
 						{
 							cout << "Error in values in alternating argument!" << endl;
 							return false;
@@ -174,25 +222,22 @@ bool checkAlternatingArgument(string pattern, int &index, vector<string> &entere
 			{
 				index++;
 				numbers.push_back(getNumber(pattern, index));
-				if(!iWantValues && numbers.back() == "")
+				if(numbers.back() == "")
 				{
 					cout << "Error unknown sign " << pattern[index] << " after [ in alternating argument!" << endl;
 					return false;
 				}
-				else if(!iWantValues && pattern[index] != ']')
+				else if(pattern[index] != ']')
 				{
 					cout << "Error unknown sign " << pattern[index] << " after [number in alternating argument!" << endl;
 					return false;
 				}
 			}
-			else if(!iWantValues)
+			else
 			{
 				cout << "Error unknown sign " << pattern[index] << " after Z in alternating argument!" << endl;
 				return false;
 			}
-
-			if(iWantValues)
-				enteredVals = numbers;
 		}
 	}
 	
@@ -209,17 +254,29 @@ vector<string> insertOrPromptForAlternatingArgs(string formula)
 
 	string argName = getNameWithSpaces(formula, gAlternatingArgPosition);
 
-	checkAlternatingArgument(formula, gAlternatingArgPosition, values, true);
+	values = getAlternatingArgumentValues(formula, gAlternatingArgPosition);
 
 	if(values.size() == 0)		//:Z()
 	{
-
+		double x;
+		cout << "Enter the value for " << argName << "(from): ";
+		cin >> x;
+		cin.sync();
+		values.push_back(std::to_string(x));
+		cout << "Enter the value for " << argName << "(to): ";
+		cin >> x;
+		cin.sync();
+		values.push_back(std::to_string(x));
+		cout << "Enter the value for " << argName << "(step): ";
+		cin >> x;
+		cin.sync();
+		values.push_back(std::to_string(x));
 	}
 	else if(values.size() == 1) //:Z[a]
 	{
 		int amount = (int)atof(values[0].c_str());
 		int argBegin = gAlternatingArgPosition - argName.size() - 4 /*:Z[]*/ - values[0].length() - 1 /*{*/;
-		int argLength = gAlternatingArgPosition - argBegin + 2 /*}*/;
+		int argLength = gAlternatingArgPosition - argBegin + 2 /*} and counting from 0*/;
 		for(int i = 0; i<amount; i++)
 		{
 			string formulaWithVal = formula;
@@ -235,12 +292,45 @@ vector<string> insertOrPromptForAlternatingArgs(string formula)
 			formulas.push_back(formulaWithVal);
 		}
 	}
-	else						//:Z(a,b,c)
+	if(values.size() == 3)	//:Z(a,b,c)
 	{
+		double step = atof(values[2].c_str());
+		double to	= atof(values[1].c_str());
+		double from = atof(values[0].c_str());
 
+		int argBegin = gAlternatingArgPosition - argName.size() - 6 /*:Z(,,)*/ - values[0].length() - values[1].length() - values[2].length() - 1 /*{*/;
+		int argLength = gAlternatingArgPosition - argBegin + 2 /*} and counting from 0*/;
+
+		for(; from < to; from += step)
+		{
+			string formulaWithVal = formula;
+			string toInsert = '(' + std::to_string(from) + ')'; //brackets in terms negative number;
+			formulaWithVal.replace(argBegin, argLength, toInsert);
+			formulas.push_back(formulaWithVal);
+		}
 	}
 
 	return formulas;
+}
+
+bool checkArgument(string pattern, int &index, int argumentNumber)
+{
+	if(index >= pattern.length() || pattern[index] != '$')
+	{
+		cout << "Error no '$' sign in user argument!" << endl;
+		return false;
+	}
+	if(!isLetter(pattern[++index])) //auto-numering of arguments
+	{
+		string toInsert = std::to_string(argumentNumber);
+		pattern.insert(index, toInsert);
+		index += toInsert.length();
+	}
+	else
+		getNameWithSpaces(pattern, index);
+
+	if(!checkAlternatingArgument(pattern, index))
+		return false;
 }
 
 //this function also inserts the argument number in functions with dynamic amount of arguments
@@ -248,6 +338,7 @@ bool isFormulaCorrect(string &formula)
 {
 	int openingBrackets = 0;
 	int closingBrackets = 0;
+	gAlternatingArgAmount = 0;
 
 	for(int i=0; i<formula.length(); ++i)
 	{
@@ -265,21 +356,7 @@ bool isFormulaCorrect(string &formula)
 		{
 			openingBrackets++;
 			i++;
-			if(i >= formula.length() || formula[i] != '$')
-			{
-				cout << "Error no '$' sign in user argument!" << endl;
-				return false;
-			}
-			if(!isLetter(formula[++i])) //auto-numering of arguments
-			{
-				string toInsert = std::to_string(openingBrackets);
-				formula.insert(i, toInsert);
-				i += toInsert.length();
-			}
-			else
-				getNameWithSpaces(formula, i);
-
-			if(!checkAlternatingArgument(formula, i))
+			if(!checkArgument(formula, i, openingBrackets))
 				return false;
 		}
 		if(formula[i] == '}')
@@ -287,8 +364,12 @@ bool isFormulaCorrect(string &formula)
 
 		if(isLetter(formula[i]))
 		{
-			if(!checkFunctionArgumentAmount(formula, i))
+			int saved = openingBrackets;
+			if(!checkFunctionArgumentAmount(formula, i, openingBrackets))
 				return false;
+			// in function there can be user arguments, in that case openingBrackets will increment
+			// so we need to increment the closing brackets aswell
+			closingBrackets += openingBrackets - saved;
 		}
 	}
 
@@ -408,7 +489,7 @@ string getUserValues(string formula)
 vector<string> parseFormula(string formula)
 {
 	vector<string> formulas;
-
+	
 	if(gAlternatingArgPosition)
 	{
 		formulas = insertOrPromptForAlternatingArgs(formula);
