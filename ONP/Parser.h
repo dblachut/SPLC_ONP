@@ -424,7 +424,7 @@ string insertConstantValues(string formula)
 // USAGE NOTE: it should be checked beforehand whether the formula is correct or not
 void getUserValues(vector<string> &formulas)
 {
-	for(int i = 0; i < formulas[0].length();)
+	for(int i = 0; i < formulas[0].length(); i++)
 	{
 		if(formulas[0][i] == '{')
 		{
@@ -440,8 +440,9 @@ void getUserValues(vector<string> &formulas)
 
 			for(auto it=formulas.begin(); it != formulas.end(); it++)
 			{
-				int argLength = i - argBegin;
-				while((*it)[i++] != '}')
+				int argLength = i - argBegin + 1;
+				int j = i;
+				while((*it)[j++] != '}')
 					argLength++;
 				string toInsert;
 
