@@ -4,8 +4,8 @@
 #include "Logic.h"
 #include "Functions.h"
 
-int gAlternateArgPosition = 0; // I don't think its the best way to do it
-int gAlternateArgAmount = 0;
+int gAlternatingArgPosition = 0; // I don't think its the best way to do it
+int gAlternatingArgAmount = 0;
 
 // checks if constraint name exist and increment index
 bool checkConstantName(string pattern, int& index)
@@ -77,7 +77,6 @@ bool checkFunctionArgumentAmount(string &pattern, int& index)
 					while(pattern[index] != '}')
 						index++;
 					argEntered++; //user argument as argument
-					//TODO: check how many args has user inserted via alternate args
 				}
 				else
 				{
@@ -102,21 +101,21 @@ bool checkFunctionArgumentAmount(string &pattern, int& index)
 	}
 }
 
-bool checkAlternateArgument(string pattern, int &index, vector<string> &enteredVals = vector<string>(), bool iWantValues = false)
+bool checkAlternatingArgument(string pattern, int &index, vector<string> &enteredVals = vector<string>(), bool iWantValues = false)
 {
 	if(pattern[index] == ':')
 	{
-		gAlternateArgPosition = index;
+		gAlternatingArgPosition = index;
 		vector<string> numbers;
 		if(!iWantValues && pattern[index+1] != 'Z')
 		{
-			cout << "Error no Z sign after declaration (:) of alternate argument!" << endl;
+			cout << "Error no Z sign after declaration (:) of alternating argument!" << endl;
 			return false;
 		}
 		index += 2;
-		if(!iWantValues && ++gAlternateArgAmount > 1)
+		if(!iWantValues && ++gAlternatingArgAmount > 1)
 		{
-			cout << "Error number of alternate arguments is limited to 1!" << endl;
+			cout << "Error number of alternating arguments is limited to 1!" << endl;
 			return false;
 		}
 		if(pattern[index] != '}')
@@ -130,7 +129,7 @@ bool checkAlternateArgument(string pattern, int &index, vector<string> &enteredV
 					numbers.push_back(getNumber(pattern, index));
 					if(!iWantValues && numbers.back() == "")
 					{
-						cout << "Error unknown sign " << pattern[index] << " after ( in alternate argument!" << endl;
+						cout << "Error unknown sign " << pattern[index] << " after ( in alternating argument!" << endl;
 						return false;
 					}
 					else
@@ -141,7 +140,7 @@ bool checkAlternateArgument(string pattern, int &index, vector<string> &enteredV
 								index++;
 							if(!iWantValues && pattern[index] != ARG_SEPARATOR)
 							{
-								cout << "Error unknown sign " << pattern[index] << " after (number in alternate argument!" << endl;
+								cout << "Error unknown sign " << pattern[index] << " after (number in alternating argument!" << endl;
 								return false;
 							}
 							index++;
@@ -150,13 +149,13 @@ bool checkAlternateArgument(string pattern, int &index, vector<string> &enteredV
 							numbers.push_back(getNumber(pattern, index));
 							if(!iWantValues && numbers.back() == "")
 							{
-								cout << "Error not a number in () in alternate argument!" << endl;
+								cout << "Error not a number in () in alternating argument!" << endl;
 								return false;
 							}
 						}
 						if(!iWantValues && pattern[index] != ')')
 						{
-							cout << "Error no closing bracket ) in alternate argument!" << endl;
+							cout << "Error no closing bracket ) in alternating argument!" << endl;
 							return false;
 						}
 						//we need to check if the values inserted are correct
@@ -165,7 +164,7 @@ bool checkAlternateArgument(string pattern, int &index, vector<string> &enteredV
 						double from = atof(numbers[0].c_str());
 						if(!iWantValues && (from > to || change > (to - from)))
 						{
-							cout << "Error in values in alternate argument!" << endl;
+							cout << "Error in values in alternating argument!" << endl;
 							return false;
 						}
 					}
@@ -177,18 +176,18 @@ bool checkAlternateArgument(string pattern, int &index, vector<string> &enteredV
 				numbers.push_back(getNumber(pattern, index));
 				if(!iWantValues && numbers.back() == "")
 				{
-					cout << "Error unknown sign " << pattern[index] << " after [ in alternate argument!" << endl;
+					cout << "Error unknown sign " << pattern[index] << " after [ in alternating argument!" << endl;
 					return false;
 				}
 				else if(!iWantValues && pattern[index] != ']')
 				{
-					cout << "Error unknown sign " << pattern[index] << " after [number in alternate argument!" << endl;
+					cout << "Error unknown sign " << pattern[index] << " after [number in alternating argument!" << endl;
 					return false;
 				}
 			}
 			else if(!iWantValues)
 			{
-				cout << "Error unknown sign " << pattern[index] << " after Z in alternate argument!" << endl;
+				cout << "Error unknown sign " << pattern[index] << " after Z in alternating argument!" << endl;
 				return false;
 			}
 
@@ -200,17 +199,17 @@ bool checkAlternateArgument(string pattern, int &index, vector<string> &enteredV
 	return true;
 }
 
-vector<string> insertOrPromptForAlternateArgs(string formula)
+vector<string> insertOrPromptForAlternatingArgs(string formula)
 {
 	vector<string> formulas;
 	vector<string> values;
 
-	while(isLetter(formula[gAlternateArgPosition-1]) || isDigit(formula[gAlternateArgPosition-1]) || formula[gAlternateArgPosition-1] == ' ')
-		gAlternateArgPosition--;
+	while(isLetter(formula[gAlternatingArgPosition-1]) || isDigit(formula[gAlternatingArgPosition-1]) || formula[gAlternatingArgPosition-1] == ' ')
+		gAlternatingArgPosition--;
 
-	string argName = getNameWithSpaces(formula, gAlternateArgPosition);
+	string argName = getNameWithSpaces(formula, gAlternatingArgPosition);
 
-	checkAlternateArgument(formula, gAlternateArgPosition, values, true);
+	checkAlternatingArgument(formula, gAlternatingArgPosition, values, true);
 
 	if(values.size() == 0)		//:Z()
 	{
@@ -219,8 +218,8 @@ vector<string> insertOrPromptForAlternateArgs(string formula)
 	else if(values.size() == 1) //:Z[a]
 	{
 		int amount = (int)atof(values[0].c_str());
-		int argBegin = gAlternateArgPosition - argName.size() - 4 /*:Z[]*/ - values[0].length() - 1 /*{*/;
-		int argLength = gAlternateArgPosition - argBegin + 2 /*}*/;
+		int argBegin = gAlternatingArgPosition - argName.size() - 4 /*:Z[]*/ - values[0].length() - 1 /*{*/;
+		int argLength = gAlternatingArgPosition - argBegin + 2 /*}*/;
 		for(int i = 0; i<amount; i++)
 		{
 			string formulaWithVal = formula;
@@ -249,7 +248,6 @@ bool isFormulaCorrect(string &formula)
 {
 	int openingBrackets = 0;
 	int closingBrackets = 0;
-	int alternateArguments = 0;
 
 	for(int i=0; i<formula.length(); ++i)
 	{
@@ -281,7 +279,7 @@ bool isFormulaCorrect(string &formula)
 			else
 				getNameWithSpaces(formula, i);
 
-			if(!checkAlternateArgument(formula, i))
+			if(!checkAlternatingArgument(formula, i))
 				return false;
 		}
 		if(formula[i] == '}')
@@ -411,9 +409,9 @@ vector<string> parseFormula(string formula)
 {
 	vector<string> formulas;
 
-	if(gAlternateArgPosition)
+	if(gAlternatingArgPosition)
 	{
-		formulas = insertOrPromptForAlternateArgs(formula);
+		formulas = insertOrPromptForAlternatingArgs(formula);
 	}
 	else
 		formulas.push_back(formula);
