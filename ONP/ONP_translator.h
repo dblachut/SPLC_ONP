@@ -47,7 +47,7 @@ bool isEquationCorrect(string equation)
 			else if(equation[i] == ')')
 			{
 				closingBrackets++;
-				if(i+1<equation.length() && equation[i+1] != ')' && equation[i+1] != ',' && !Operators::isOperator(equation[i+1]))
+				if(i+1<equation.length() && equation[i+1] != ')' && equation[i+1] != ',' && equation[i+1] != '=' && !Operators::isOperator(equation[i+1]))
 				{
 					cout << "Error no operator after closing bracket!" << endl;
 					return false;
