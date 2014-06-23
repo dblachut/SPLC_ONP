@@ -256,27 +256,46 @@ vector<string> insertOrPromptForAlternatingArgs(string formula)
 
 	values = getAlternatingArgumentValues(formula, gAlternatingArgPosition);
 
-	if(values.size() == 0)		//:Z()
+	if(values.size() == 0)
 	{
-		double x;
-		cout << "Enter the value for " << argName << "(from): ";
-		cin >> x;
-		cin.sync();
-		values.push_back(std::to_string(x));
-		cout << "Enter the value for " << argName << "(to): ";
-		cin >> x;
-		cin.sync();
-		values.push_back(std::to_string(x));
-		cout << "Enter the value for " << argName << "(step): ";
-		cin >> x;
-		cin.sync();
-		values.push_back(std::to_string(x));
-		valuesNotEntered = true;
+		if(formula[gAlternatingArgPosition] == ')')		//:Z()
+		{
+			double x;
+			cout << "Enter the value for " << argName << "(from): ";
+			cin >> x;
+			cin.sync();
+			values.push_back(std::to_string(x));
+			cout << "Enter the value for " << argName << "(to): ";
+			cin >> x;
+			cin.sync();
+			values.push_back(std::to_string(x));
+			cout << "Enter the value for " << argName << "(step): ";
+			cin >> x;
+			cin.sync();
+			values.push_back(std::to_string(x));
+			valuesNotEntered = true;
+		}
+		else											//:Z
+		{
+			double x;
+			cout << "Enter the value for " << argName << "[amount]: ";
+			cin >> x;
+			cin.sync();
+			values.push_back(std::to_string(x));
+			valuesNotEntered = true;
+		}
 	}
-	else if(values.size() == 1) //:Z[a]
+	if(values.size() == 1) //:Z[a]
 	{
 		int amount = (int)atof(values[0].c_str());
-		int argBegin = gAlternatingArgPosition - argName.size() - 4 /*:Z[]*/ - values[0].length() - 1 /*{*/;
+		int argBegin;
+		if(valuesNotEntered) //if values were entered now argBegin is calculated differently
+		{
+			gAlternatingArgPosition--;
+			argBegin = gAlternatingArgPosition - argName.size() - 2 /*:Z*/ - 1 /*{*/;
+		}
+		else
+			argBegin = gAlternatingArgPosition - argName.size() - 4 /*:Z[]*/ - values[0].length() - 1 /*{*/;
 		int argLength = gAlternatingArgPosition - argBegin + 2 /*} and counting from 0*/;
 		for(int i = 0; i<amount; i++)
 		{
