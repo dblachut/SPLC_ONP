@@ -1,7 +1,11 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
+#include <vector>
 #include "Logic.h"
 #include "Functions.h"
+
+int gAlternateArgPosition = 0; // I don't think its the best way to do it
+int gAlternateArgAmount = 0;
 
 // checks if constraint name exist and increment index
 bool checkConstantName(string pattern, int& index)
@@ -68,6 +72,13 @@ bool checkFunctionArgumentAmount(string &pattern, int& index)
 					index--;
 					argEntered++; //const as an argument
 				}
+				else if(pattern[index] == '{')
+				{
+					while(pattern[index] != '}')
+						index++;
+					argEntered++; //user argument as argument
+					//TODO: check how many args has user inserted via alternate args
+				}
 				else
 				{
 					cout << "Error, unknown sign " << pattern[index] << " in function arguments\n";
@@ -89,6 +100,148 @@ bool checkFunctionArgumentAmount(string &pattern, int& index)
 		}
 		index++;
 	}
+}
+
+bool checkAlternateArgument(string pattern, int &index, vector<string> &enteredVals = vector<string>(), bool iWantValues = false)
+{
+	if(pattern[index] == ':')
+	{
+		gAlternateArgPosition = index;
+		vector<string> numbers;
+		if(!iWantValues && pattern[index+1] != 'Z')
+		{
+			cout << "Error no Z sign after declaration (:) of alternate argument!" << endl;
+			return false;
+		}
+		index += 2;
+		if(!iWantValues && ++gAlternateArgAmount > 1)
+		{
+			cout << "Error number of alternate arguments is limited to 1!" << endl;
+			return false;
+		}
+		if(pattern[index] != '}')
+		{
+			if(pattern[index] == '(')
+			{
+				index++;
+				if(pattern[index] != ')')
+				{
+					
+					numbers.push_back(getNumber(pattern, index));
+					if(!iWantValues && numbers.back() == "")
+					{
+						cout << "Error unknown sign " << pattern[index] << " after ( in alternate argument!" << endl;
+						return false;
+					}
+					else
+					{
+						for(int j=0; j<2; j++)
+						{
+							while(pattern[index] == ' ')
+								index++;
+							if(!iWantValues && pattern[index] != ARG_SEPARATOR)
+							{
+								cout << "Error unknown sign " << pattern[index] << " after (number in alternate argument!" << endl;
+								return false;
+							}
+							index++;
+							while(pattern[index] == ' ')
+								index++;
+							numbers.push_back(getNumber(pattern, index));
+							if(!iWantValues && numbers.back() == "")
+							{
+								cout << "Error not a number in () in alternate argument!" << endl;
+								return false;
+							}
+						}
+						if(!iWantValues && pattern[index] != ')')
+						{
+							cout << "Error no closing bracket ) in alternate argument!" << endl;
+							return false;
+						}
+						//we need to check if the values inserted are correct
+						double change = atof(numbers[2].c_str());
+						double to = atof(numbers[1].c_str());
+						double from = atof(numbers[0].c_str());
+						if(!iWantValues && (from > to || change > (to - from)))
+						{
+							cout << "Error in values in alternate argument!" << endl;
+							return false;
+						}
+					}
+				}
+			}
+			else if (pattern[index] == '[')
+			{
+				index++;
+				numbers.push_back(getNumber(pattern, index));
+				if(!iWantValues && numbers.back() == "")
+				{
+					cout << "Error unknown sign " << pattern[index] << " after [ in alternate argument!" << endl;
+					return false;
+				}
+				else if(!iWantValues && pattern[index] != ']')
+				{
+					cout << "Error unknown sign " << pattern[index] << " after [number in alternate argument!" << endl;
+					return false;
+				}
+			}
+			else if(!iWantValues)
+			{
+				cout << "Error unknown sign " << pattern[index] << " after Z in alternate argument!" << endl;
+				return false;
+			}
+
+			if(iWantValues)
+				enteredVals = numbers;
+		}
+	}
+	
+	return true;
+}
+
+vector<string> insertOrPromptForAlternateArgs(string formula)
+{
+	vector<string> formulas;
+	vector<string> values;
+
+	while(isLetter(formula[gAlternateArgPosition-1]) || isDigit(formula[gAlternateArgPosition-1]) || formula[gAlternateArgPosition-1] == ' ')
+		gAlternateArgPosition--;
+
+	string argName = getNameWithSpaces(formula, gAlternateArgPosition);
+
+	checkAlternateArgument(formula, gAlternateArgPosition, values, true);
+
+	if(values.size() == 0)		//:Z()
+	{
+
+	}
+	else if(values.size() == 1) //:Z[a]
+	{
+		int amount = (int)atof(values[0].c_str());
+		int argBegin = gAlternateArgPosition - argName.size() - 4 /*:Z[]*/ - values[0].length() - 1 /*{*/;
+		int argLength = gAlternateArgPosition - argBegin + 2 /*}*/;
+		for(int i = 0; i<amount; i++)
+		{
+			string formulaWithVal = formula;
+			string toInsert;
+
+			double x;
+			cout << "Enter the value for " << argName << "[" << i << "]: ";
+			cin >> x;
+			cin.sync();
+
+			toInsert = '(' + std::to_string(x) + ')'; //brackets in terms negative number
+			formulaWithVal.replace(argBegin, argLength, toInsert);
+			formulas.push_back(formulaWithVal);
+		}
+	}
+	else						//:Z(a,b,c)
+	{
+
+	}
+
+	return formulas;
 }
 
 //this function also inserts the argument number in functions with dynamic amount of arguments
@@ -127,80 +280,9 @@ bool isFormulaCorrect(string &formula)
 			}
 			else
 				getNameWithSpaces(formula, i);
-			if(formula[i] == ':')
-			{
-				if(formula[i+1] != 'Z')
-				{
-					cout << "Error no Z sign after declaration (:) of alternate argument!" << endl;
-					return false;
-				}
-				i += 2;
-				if(++alternateArguments > 1)
-				{
-					cout << "Error number of alternate arguments is limited to 1!" << endl;
-					return false;
-				}
-				if(formula[i] != '}')
-				{
-					if(formula[i] == '(')
-					{
-						i++;
-						if(formula[i] != ')')
-						{
-							if(getNumber(formula, i) == "")
-							{
-								cout << "Error unknown sign " << formula[i] << " after ( in alternate argument!" << endl;
-								return false;
-							}
-							else
-							{
-								for(int j=0; j<2; j++)
-								{
-									while(formula[i] == ' ')
-										i++;
-									if(formula[i] != ARG_SEPARATOR)
-									{
-										cout << "Error unknown sign " << formula[i] << " after (number in alternate argument!" << endl;
-										return false;
-									}
-									i++;
-									while(formula[i] == ' ')
-										i++;
-									if(getNumber(formula, i) == "")
-									{
-										cout << "Error not a number in () in alternate argument!" << endl;
-										return false;
-									}
-								}
-								if(formula[i] != ')')
-								{
-									cout << "Error no closing bracket ) in alternate argument!" << endl;
-									return false;
-								}
-							}
-						}
-					}
-					else if (formula[i] == '[')
-					{
-						i++;
-						if(getNumber(formula, i) == "")
-						{
-							cout << "Error unknown sign " << formula[i] << " after [ in alternate argument!" << endl;
-							return false;
-						}
-						else if(formula[i] != ']')
-						{
-							cout << "Error unknown sign " << formula[i] << " after [number in alternate argument!" << endl;
-							return false;
-						}
-					}
-					else
-					{
-						cout << "Error unknown sign " << formula[i] << " after Z in alternate argument!" << endl;
-						return false;
-					}
-				}
-			}
+
+			if(!checkAlternateArgument(formula, i))
+				return false;
 		}
 		if(formula[i] == '}')
 			closingBrackets++;
@@ -217,8 +299,6 @@ bool isFormulaCorrect(string &formula)
 		cout << "Error wrong number of brackets in user arguments!" << endl;
 		return false;
 	}
-
-	cout << "Potrzebujemy: " << openingBrackets << " argumentow uzytkownika." << endl;
 
 	return true;
 }
@@ -327,13 +407,27 @@ string getUserValues(string formula)
 	return retval;
 };  */
 
-string parseFormula(string formula)
+vector<string> parseFormula(string formula)
 {
-	formula = getUserValues(formula);
-	//substitute constant names with values
-	formula = insertConstantValues(formula);
+	vector<string> formulas;
 
-	return formula;
+	if(gAlternateArgPosition)
+	{
+		formulas = insertOrPromptForAlternateArgs(formula);
+	}
+	else
+		formulas.push_back(formula);
+
+	for(auto it = formulas.begin(); it != formulas.end(); it++)
+	{
+		//get user arguments values
+		*it = getUserValues(*it);
+		//substitute constant names with values
+		*it = insertConstantValues(*it);
+	}
+
+
+	return formulas;
 }
 
 #endif // !_PARSER_H_

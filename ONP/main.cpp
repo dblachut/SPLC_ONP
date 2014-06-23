@@ -5,6 +5,7 @@
 int main ()
 {
 	string line;
+	vector<string> formulas;
 	while(true)
 	{
 		std::getline(std::cin, line);
@@ -23,7 +24,7 @@ int main ()
 		}
 
 		//parse formula ( make an equation out of it )
-		line = parseFormula(line);
+		formulas = parseFormula(line);
 
 		if(!isEquationCorrect(line))
 		{
@@ -35,11 +36,14 @@ int main ()
 			cout << "Equation correct\n";
 		}
 		
-		//translate the equation to Reverse Polish Notation
-		line = translateToONP(line);
+		for each (string fromula in formulas)
+		{
+			//translate the equation to Reverse Polish Notation
+			line = translateToONP(fromula);
 
-		//calculate value
-		cout << "Result = " << calculateONP(line) << endl;
+			//calculate value
+			cout << "Result = " << calculateONP(line) << endl;
+		}
 	}
 
 	return 0;
