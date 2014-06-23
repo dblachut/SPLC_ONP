@@ -221,6 +221,27 @@ string getNumber(string pattern, int& index)
 {
 	string number;
 
+	while(index < pattern.length() && isDigit(pattern[index]))
+		number += pattern[index++];
+
+	if(pattern.length() != 0 && pattern[index] == DEC_SEPARATOR)
+	{
+		number += pattern[index++];
+
+		if(!isDigit(pattern[index]))
+			throw("No digit after decimal separator!");
+
+		while(index < pattern.length() && isDigit(pattern[index]))
+			number += pattern[index++];
+	}
+
+	return number;
+}
+
+string getNumberWithMinus(string pattern, int& index)
+{
+	string number;
+
 	if(pattern[index] == '-')
 		number += pattern[index++];
 
