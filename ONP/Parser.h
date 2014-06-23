@@ -248,6 +248,7 @@ vector<string> insertOrPromptForAlternatingArgs(string formula)
 {
 	vector<string> formulas;
 	vector<string> values;
+	bool valuesNotEntered = false;
 
 	while(isLetter(formula[gAlternatingArgPosition-1]) || isDigit(formula[gAlternatingArgPosition-1]) || formula[gAlternatingArgPosition-1] == ' ')
 		gAlternatingArgPosition--;
@@ -271,6 +272,7 @@ vector<string> insertOrPromptForAlternatingArgs(string formula)
 		cin >> x;
 		cin.sync();
 		values.push_back(std::to_string(x));
+		valuesNotEntered = true;
 	}
 	else if(values.size() == 1) //:Z[a]
 	{
@@ -297,8 +299,13 @@ vector<string> insertOrPromptForAlternatingArgs(string formula)
 		double step = atof(values[2].c_str());
 		double to	= atof(values[1].c_str());
 		double from = atof(values[0].c_str());
+		int argBegin;
 
-		int argBegin = gAlternatingArgPosition - argName.size() - 6 /*:Z(,,)*/ - values[0].length() - values[1].length() - values[2].length() - 1 /*{*/;
+		if(valuesNotEntered) //if values were entered now argBegin is calculated differently
+			argBegin = gAlternatingArgPosition - argName.size() - 4 /*:Z()*/ - 1 /*{*/;
+		else
+			argBegin = gAlternatingArgPosition - argName.size() - 6 /*:Z(,,)*/ - values[0].length() - values[1].length() - values[2].length() - 1 /*{*/;
+		 
 		int argLength = gAlternatingArgPosition - argBegin + 2 /*} and counting from 0*/;
 
 		for(; from < to; from += step)
@@ -308,6 +315,11 @@ vector<string> insertOrPromptForAlternatingArgs(string formula)
 			formulaWithVal.replace(argBegin, argLength, toInsert);
 			formulas.push_back(formulaWithVal);
 		}
+
+		string formulaWithVal = formula;
+		string toInsert = '(' + std::to_string(to) + ')'; //brackets in terms negative number;
+		formulaWithVal.replace(argBegin, argLength, toInsert);
+		formulas.push_back(formulaWithVal);
 	}
 
 	return formulas;
@@ -331,6 +343,8 @@ bool checkArgument(string pattern, int &index, int argumentNumber)
 
 	if(!checkAlternatingArgument(pattern, index))
 		return false;
+	
+	return true;
 }
 
 //this function also inserts the argument number in functions with dynamic amount of arguments
@@ -408,34 +422,34 @@ string insertConstantValues(string formula)
 // asks user for each parameter of the formula and returns a string
 // where parameters "{$parameter_name}" are substituted with values given by the user
 // USAGE NOTE: it should be checked beforehand whether the formula is correct or not
-string getUserValues(string formula)
-{ // TODO: array user parameters
-	string retval = "";
-	for(int i = 0; i < formula.length();)
+void getUserValues(vector<string> &formulas)
+{
+	for(int i = 0; i < formulas[0].length();)
 	{
-		if(formula[i] == '{')
+		if(formulas[0][i] == '{')
 		{
+			int argBegin = i;
 			i += 2; // go to the first character of parameter name
-			string paramName = getNameWithSpaces(formula, i);
-			if(formula[i] == ':')
-			{
-				// TODO: array argument. let's do it later
-			}
+			string paramName = getNameWithSpaces(formulas[0], i);
+
 			// prompt user for input
 			cout << "Enter the value for " << paramName << ": ";
 			double x;
 			cin >> x;
 			cin.sync(); // reset stream buffer (remove \n used to confirm number input) TODO: is there a smarter way to do it?
-			retval += '(' + std::to_string(x) + ')';
 
-			while(formula[i++]!='}'); // get to the next character after the closing bracket
-		}
-		else
-		{
-			retval += formula[i++];
+			for(auto it=formulas.begin(); it != formulas.end(); it++)
+			{
+				int argLength = i - argBegin;
+				while((*it)[i++] != '}')
+					argLength++;
+				string toInsert;
+
+				toInsert = '(' + std::to_string(x) + ')'; //brackets in terms negative number
+				it->replace(argBegin, argLength, toInsert);
+			}
 		}
 	}
-	return retval;
 }
 
 // calculates function values and substitutes function calls with the values
@@ -497,14 +511,13 @@ vector<string> parseFormula(string formula)
 	else
 		formulas.push_back(formula);
 
-	for(auto it = formulas.begin(); it != formulas.end(); it++)
+	//get user arguments values
+	getUserValues(formulas);
+	//substitute constant names with values
+	for(auto it=formulas.begin(); it!=formulas.end(); it++)
 	{
-		//get user arguments values
-		*it = getUserValues(*it);
-		//substitute constant names with values
 		*it = insertConstantValues(*it);
 	}
-
 
 	return formulas;
 }
