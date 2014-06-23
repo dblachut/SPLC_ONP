@@ -40,7 +40,8 @@ int main ()
 		{
 			//translate the equation to Reverse Polish Notation
 			line = translateToONP(fromula);
-
+			if(line == "")
+				continue;
 			//calculate value
 			cout << "Result = " << calculateONP(line) << endl;
 		}
