@@ -335,6 +335,11 @@ bool checkArgument(string &pattern, int &index, int argumentNumber)
 	index++;
 	if( !(isLetter(pattern[index]) || isDigit(pattern[index])) ) //auto-numering of arguments
 	{
+		if(pattern[index] != ':' || pattern[index] != '}')
+		{
+			cout << "Error unknown sign " << pattern[index] << " in user argument name!" << endl;
+			return false;
+		}
 		string toInsert = std::to_string(argumentNumber);
 		pattern.insert(index, toInsert);
 		index += toInsert.length();
