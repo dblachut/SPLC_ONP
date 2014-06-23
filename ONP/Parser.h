@@ -33,9 +33,8 @@ bool checkConstantName(string pattern, int& index)
 // adidionally increment index
 bool checkFunctionArgumentAmount(string &pattern, int& index, int &argumentNumber)
 {
-	string fName = "";
-	while(pattern[index] != '(')					
-		fName+=pattern[index++];
+	string fName;
+	fName = getName(pattern, index);
 	index++;
 	if(!Operators::isOperator(fName))
 	{
