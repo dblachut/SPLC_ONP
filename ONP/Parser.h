@@ -7,7 +7,7 @@
 int gAlternatingArgPosition = 0; // I don't think its the best way to do it
 int gAlternatingArgAmount = 0;
 
-bool checkArgument(string pattern, int &index, int argumentNumber);
+bool checkArgument(string &pattern, int &index, int argumentNumber);
 
 // checks if constraint name exist and increment index
 bool checkConstantName(string pattern, int& index)
@@ -126,7 +126,7 @@ vector<string> getAlternatingArgumentValues(string pattern, int &index)
 				index++;
 				if(pattern[index] != ')')
 				{
-					numbers.push_back(getNumber(pattern, index));
+					numbers.push_back(getNumberWithMinus(pattern, index));
 
 					for(int j=0; j<2; j++)
 					{
@@ -135,7 +135,7 @@ vector<string> getAlternatingArgumentValues(string pattern, int &index)
 						index++;		//skip separator sign
 						while(pattern[index] == ' ')
 							index++;
-						numbers.push_back(getNumber(pattern, index));
+						numbers.push_back(getNumberWithMinus(pattern, index));
 					}
 				}
 			}
@@ -174,7 +174,7 @@ bool checkAlternatingArgument(string pattern, int &index)
 				index++;
 				if(pattern[index] != ')')
 				{
-					numbers.push_back(getNumber(pattern, index));
+					numbers.push_back(getNumberWithMinus(pattern, index));
 					if(numbers.back() == "")
 					{
 						cout << "Error unknown sign " << pattern[index] << " after ( in alternating argument!" << endl;
@@ -194,7 +194,7 @@ bool checkAlternatingArgument(string pattern, int &index)
 							index++;
 							while(pattern[index] == ' ')
 								index++;
-							numbers.push_back(getNumber(pattern, index));
+							numbers.push_back(getNumberWithMinus(pattern, index));
 							if(numbers.back() == "")
 							{
 								cout << "Error not a number in () in alternating argument!" << endl;
@@ -325,7 +325,7 @@ vector<string> insertOrPromptForAlternatingArgs(string formula)
 	return formulas;
 }
 
-bool checkArgument(string pattern, int &index, int argumentNumber)
+bool checkArgument(string &pattern, int &index, int argumentNumber)
 {
 	if(index >= pattern.length() || pattern[index] != '$')
 	{
@@ -353,6 +353,7 @@ bool isFormulaCorrect(string &formula)
 	int openingBrackets = 0;
 	int closingBrackets = 0;
 	gAlternatingArgAmount = 0;
+	gAlternatingArgPosition = 0;
 
 	for(int i=0; i<formula.length(); ++i)
 	{
