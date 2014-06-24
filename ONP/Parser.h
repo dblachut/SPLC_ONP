@@ -353,7 +353,7 @@ bool checkArgument(string &pattern, int &index, int argumentNumber)
 	index++;
 	if( !(isLetter(pattern[index]) || isDigit(pattern[index])) ) //auto-numering of arguments
 	{
-		if(pattern[index] != ':' || pattern[index] != '}')
+		if(pattern[index] != ':' && pattern[index] != '}')
 		{
 			cout << "Error unknown sign " << pattern[index] << " in user argument name!" << endl;
 			return false;
