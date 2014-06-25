@@ -31,7 +31,7 @@ bool checkConstantName(string pattern, int& index)
 
 // checks if function has proper amount of agruments and sets it in dynamical one
 // adidionally increment index
-bool checkFunctionArgumentAmount(string &pattern, int& index, int &argumentNumber)
+bool checkFunctionArgumentAmount(string &pattern, int& index, int &argumentNumber, int& amount)
 {
 	string fName;
 	fName = getName(pattern, index);
@@ -60,7 +60,7 @@ bool checkFunctionArgumentAmount(string &pattern, int& index, int &argumentNumbe
 					break;
 				else if(isLetter(pattern[index]))
 				{
-					if(!checkFunctionArgumentAmount(pattern, index, argumentNumber))
+					if(!checkFunctionArgumentAmount(pattern, index, argumentNumber, amount))
 						return false;
 					index--;
 					argEntered++; //functon as an argment
@@ -99,11 +99,13 @@ bool checkFunctionArgumentAmount(string &pattern, int& index, int &argumentNumbe
 			}
 		}
 
-		if(argCount == -1) //we need to add argument number due to dynamic amount of arguments
+		if(argCount == -1)
 		{
-			string toInsert = ARG_SEPARATOR + std::to_string(argEntered);
-			pattern.insert(index,  toInsert);
-			index += toInsert.length();
+			if(argEntered <= 0)
+			{
+				cout << "Error argEntered for dynamic function should be higher than 0!" << endl;
+				return false;
+			}
 		}
 		else if (argCount != argEntered)
 		{
@@ -111,8 +113,16 @@ bool checkFunctionArgumentAmount(string &pattern, int& index, int &argumentNumbe
 			return false;
 		}
 		index++;
+		amount = argEntered;
 	}
 	return true;
+}
+
+// wrapper
+bool checkFunctionArgumentAmount(string &pattern, int& index, int &argumentNumber)
+{
+	int i;
+	return checkFunctionArgumentAmount(pattern, index, argumentNumber, i);
 }
 
 vector<string> getAlternatingArgumentValues(string pattern, int &index)
@@ -429,7 +439,7 @@ bool isFormulaCorrect(string &formula)
 
 // substitutes constant names "#name" in string formula with their respective values
 // described in the Constants singleton class
-string insertConstantValues(string formula)
+string insertConstantAndDynamicValues(string formula)
 {
 	string retval = "";
 	for(int i = 0; i < formula.length();)
@@ -442,7 +452,31 @@ string insertConstantValues(string formula)
 
 			retval += '(' + Constants::constantStringValue(constName) + ')'; // brackets in case the number is negative
 		}
-		else // not #
+		//else if (formula[i] == '{') //skip the argument
+		//{
+		//	while(formula[i] != '}')
+		//		retval += formula[i++];
+		//	retval += formula[i++];
+		//}
+		else if(isLetter(formula[i]))
+		{
+			int argAmount, tmp = 0, tmp_i = i;
+			string tmp_formula = formula;
+			string fName;
+			fName = getName(tmp_formula, tmp_i);
+			tmp_i = i;
+			if(Operators::getOperator(fName).getArgc() == -1)
+			{
+				checkFunctionArgumentAmount(tmp_formula, tmp_i, tmp, argAmount);
+				string toInsert = ARG_SEPARATOR + std::to_string(argAmount);
+				tmp_i--;
+				formula.insert(tmp_i, toInsert);
+				tmp_i += toInsert.length();
+				retval.append(formula, i, tmp_i-i);
+				i = tmp_i;
+			}
+		}
+		else
 		{ 
 			retval += formula[i++]; // incrementing i
 		}
@@ -548,7 +582,7 @@ vector<string> parseFormula(string formula)
 	//substitute constant names with values
 	for(auto it=formulas.begin(); it!=formulas.end(); it++)
 	{
-		*it = insertConstantValues(*it);
+		*it = insertConstantAndDynamicValues(*it);
 	}
 
 	return formulas;
