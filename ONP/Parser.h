@@ -88,8 +88,13 @@ bool checkFunctionArgumentAmount(string &pattern, int& index, int &argumentNumbe
 				}
 				else
 				{
-					cout << "Error, unknown sign " << pattern[index] << " in function arguments\n";
-					return false;
+					if(Operators::isOperator(pattern[index]))
+						argEntered--;
+					else
+					{
+						cout << "Error, unknown sign " << pattern[index] << " in function arguments\n";
+						return false;
+					}
 				}
 			}
 		}
