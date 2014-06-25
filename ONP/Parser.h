@@ -79,7 +79,6 @@ bool checkFunctionArgumentAmount(string &pattern, int& index, int &argumentNumbe
 					argumentNumber++;
 					if(!checkArgument(pattern, index, argumentNumber))
 						return false;
-					++index;
 					if(pattern[index] != '}')
 					{
 						cout << "Error, no closing bracket } in user argument in function arguments!\n";
@@ -216,6 +215,7 @@ bool checkAlternatingArgument(string pattern, int &index)
 						}
 					}
 				}
+				index++;
 			}
 			else if (pattern[index] == '[')
 			{
@@ -231,6 +231,7 @@ bool checkAlternatingArgument(string pattern, int &index)
 					cout << "Error unknown sign " << pattern[index] << " after [number in alternating argument!" << endl;
 					return false;
 				}
+				index++;
 			}
 			else
 			{
